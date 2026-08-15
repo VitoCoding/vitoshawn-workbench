@@ -105,3 +105,24 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 @media(max-width:760px){
   .mobile-cloud-banner.show{display:flex}
 }
+
+
+/* V4.2: real More page, no modal dependency */
+.mobile-more-page{max-width:760px}
+.more-hero{margin-bottom:14px;padding:17px;background:radial-gradient(circle at 85% 0%,rgba(130,104,255,.18),transparent 38%),var(--panel);border:1px solid var(--border);border-radius:17px}
+.more-hero h2{margin:5px 0;font-size:21px}
+.more-hero p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.more-page-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.more-page-card{min-height:102px;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:15px;padding:14px;text-align:left;display:flex;align-items:center;gap:12px}
+.more-page-card svg{width:23px;height:23px;color:#b4a7ff;flex:0 0 auto}
+.more-page-card strong{display:block;font-size:14px}
+.more-page-card span{display:block;margin-top:5px;font-size:10px;color:var(--muted);line-height:1.5}
+.more-page-card.cloud{border-color:#554697;background:rgba(130,104,255,.10)}
+.more-sync-tip .primary-btn{margin-top:4px}
+@media(max-width:760px){
+  .mobile-more-page{max-width:none}
+  .more-page-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:390px){
+  .more-page-grid{grid-template-columns:1fr}
+}
