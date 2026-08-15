@@ -341,12 +341,17 @@
               <div><span>当前状态</span><strong id="syncStateText">未配置</strong></div>
               <div><span>最后同步</span><strong id="lastSyncText">—</strong></div>
               <div><span>本机数据</span><strong id="localStateText">已保存</strong></div>
+              <div><span>云端记录</span><strong id="cloudRowStateText">未检查</strong></div>
             </div>
             <div class="button-row">
               <button class="primary-btn" id="syncNowBtn">立即同步</button>
               <button class="secondary-btn" id="pullCloudBtn">从云端刷新</button>
             </div>
             <p class="muted sync-note">正常使用时不需要手动点。App 会在本地修改后自动上传，并在重新打开、回到前台或另一台设备更新时刷新。</p>
+            <div class="sync-error-box hidden" id="syncErrorBox">
+              <strong>同步错误</strong>
+              <span id="syncErrorText"></span>
+            </div>
           </div>
 
           <div class="panel">

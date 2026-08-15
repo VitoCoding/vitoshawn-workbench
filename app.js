@@ -42,7 +42,7 @@ function load(){
  return clone(defaults);
 }
 let cloudClient=null, cloudSession=null, cloudChannel=null, cloudPushTimer=null;
-let applyingRemote=false, cloudDirty=false, cloudBusy=false;
+let applyingRemote=false, cloudDirty=false, cloudBusy=false, lastSyncError="", cloudRowExists=null;
 
 function save(t=false){
  if(!applyingRemote){
@@ -148,12 +148,24 @@ function close(){modalWrap.classList.add("hidden")}
 function getCloudConfig(){
   try{return JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||"{}")}catch{return{}}
 }
-function setSyncUI(kind,text){
+function setSyncUI(kind,text,errorDetail=""){
   if(typeof syncPill!=="undefined"&&syncPill){
     syncPill.className="sync-pill "+kind;
     syncPill.textContent=text;
   }
   if(typeof syncStateText!=="undefined"&&syncStateText) syncStateText.textContent=text;
+
+  if(kind==="error"){
+    lastSyncError=errorDetail||lastSyncError||"未知错误";
+  }else if(kind==="synced"||kind==="syncing"){
+    if(kind==="synced") lastSyncError="";
+  }
+
+  if(typeof syncErrorBox!=="undefined"&&syncErrorBox){
+    const show=!!lastSyncError;
+    syncErrorBox.classList.toggle("hidden",!show);
+    if(typeof syncErrorText!=="undefined"&&syncErrorText) syncErrorText.textContent=lastSyncError;
+  }
 }
 function formatSyncTime(v){
   if(!v)return "—";
@@ -178,6 +190,13 @@ function renderCloudUI(){
   }
   if(typeof lastSyncText!=="undefined"&&lastSyncText) lastSyncText.textContent=formatSyncTime(S.meta.cloudUpdatedAt);
   if(typeof localStateText!=="undefined"&&localStateText) localStateText.textContent=cloudDirty?"等待上传":"已保存";
+  if(typeof cloudRowStateText!=="undefined"&&cloudRowStateText){
+    cloudRowStateText.textContent=cloudRowExists===null?"未检查":(cloudRowExists?"已存在":"不存在");
+  }
+  if(typeof syncErrorBox!=="undefined"&&syncErrorBox){
+    syncErrorBox.classList.toggle("hidden",!lastSyncError);
+    if(typeof syncErrorText!=="undefined"&&syncErrorText) syncErrorText.textContent=lastSyncError;
+  }
   renderMobileCloudBanner();
 }
 async function initCloud(){
@@ -192,15 +211,27 @@ async function initCloud(){
     const {data:{session},error}=await cloudClient.auth.getSession();
     if(error)throw error;
     cloudSession=session;
-    cloudClient.auth.onAuthStateChange(async (_event,session)=>{
+    cloudClient.auth.onAuthStateChange((_event,session)=>{
       cloudSession=session;
       renderCloudUI();
+
       if(session){
         setSyncUI("syncing","正在连接云端");
-        await initialCloudSync();
-        subscribeCloud();
+
+        // Supabase 官方当前记录：不要在 onAuthStateChange 回调本身直接 await Supabase API。
+        // 延迟到下一个 event loop tick 再做数据库请求，避免 supabase-js deadlock。
+        setTimeout(async ()=>{
+          try{
+            await initialCloudSync();
+            subscribeCloud();
+          }catch(err){
+            console.error("deferred auth sync",err);
+            setSyncUI("error","同步失败",err?.message||String(err));
+          }
+        },0);
       }else{
         setSyncUI("offline","未登录");
+        cloudRowExists=null;
         if(cloudChannel){cloudClient.removeChannel(cloudChannel);cloudChannel=null}
       }
     });
@@ -212,7 +243,7 @@ async function initCloud(){
     renderCloudUI();
   }catch(err){
     console.error("initCloud",err);
-    setSyncUI("error","云同步配置有误");
+    setSyncUI("error","云同步配置有误",err?.message||String(err));
   }
 }
 function hasMeaningfulLocalData(){
@@ -231,30 +262,64 @@ async function fetchCloudRow(){
     .eq("user_id",cloudSession.user.id)
     .maybeSingle();
   if(error)throw error;
+  cloudRowExists=!!data;
+  renderCloudUI();
   return data;
 }
+
+async function writeCloudRowUnlocked(){
+  if(!cloudClient||!cloudSession?.user) throw new Error("未登录 Supabase");
+  const payload=clone(S);
+  const {data,error}=await cloudClient
+    .from("workbench_state")
+    .upsert({user_id:cloudSession.user.id,state:payload},{onConflict:"user_id"})
+    .select("updated_at")
+    .single();
+  if(error) throw error;
+
+  cloudRowExists=true;
+  S.meta.cloudUpdatedAt=data.updated_at;
+  S.meta.localUpdatedAt=data.updated_at;
+  cloudDirty=false;
+
+  applyingRemote=true;
+  localStorage.setItem(KEY,JSON.stringify(S));
+  applyingRemote=false;
+
+  renderCloudUI();
+  return data.updated_at;
+}
+
 async function initialCloudSync(){
   if(!cloudClient||!cloudSession?.user)return;
   if(cloudBusy)return;
+
   cloudBusy=true;
   try{
     setSyncUI("syncing","正在同步");
     const row=await fetchCloudRow();
+
     if(!row){
-      await pushCloud(true);
+      await writeCloudRowUnlocked();
+      setSyncUI("synced","已同步");
       return;
     }
+
     const neverSynced=!S.meta.cloudUpdatedAt;
+
     if(neverSynced && hasMeaningfulLocalData()){
-      // First device with existing local V3/V4 data: make this the initial cloud copy.
-      await pushCloud(true);
+      // 首台已有本地数据的设备：把本机作为第一份云端版本。
+      await writeCloudRowUnlocked();
+      setSyncUI("synced","已同步");
       return;
     }
+
     applyCloudState(row.state,row.updated_at);
     setSyncUI("synced","已同步");
   }catch(err){
     console.error("initialCloudSync",err);
-    setSyncUI(navigator.onLine?"error":"offline",navigator.onLine?"同步失败":"离线");
+    const detail=err?.message||String(err);
+    setSyncUI(navigator.onLine?"error":"offline",navigator.onLine?"同步失败":"离线",detail);
   }finally{
     cloudBusy=false;
     renderCloudUI();
@@ -277,29 +342,19 @@ function applyCloudState(remote,updatedAt){
 async function pushCloud(force=false){
   if(!cloudClient||!cloudSession?.user||(!force&&!cloudDirty)||cloudBusy)return;
   if(!navigator.onLine){setSyncUI("offline","离线 · 等待同步");return}
+
   cloudBusy=true;
   try{
     setSyncUI("syncing","正在同步");
-    const payload=clone(S);
-    const {data,error}=await cloudClient
-      .from("workbench_state")
-      .upsert({user_id:cloudSession.user.id,state:payload},{onConflict:"user_id"})
-      .select("updated_at")
-      .single();
-    if(error)throw error;
-    S.meta.cloudUpdatedAt=data.updated_at;
-    S.meta.localUpdatedAt=data.updated_at;
-    cloudDirty=false;
-    applyingRemote=true;
-    localStorage.setItem(KEY,JSON.stringify(S));
-    applyingRemote=false;
+    await writeCloudRowUnlocked();
     setSyncUI("synced","已同步");
-    renderCloudUI();
   }catch(err){
     console.error("pushCloud",err);
-    setSyncUI(navigator.onLine?"error":"offline",navigator.onLine?"同步失败":"离线 · 等待同步");
+    const detail=err?.message||String(err);
+    setSyncUI(navigator.onLine?"error":"offline",navigator.onLine?"同步失败":"离线 · 等待同步",detail);
   }finally{
     cloudBusy=false;
+    renderCloudUI();
   }
 }
 function scheduleCloudPush(){
@@ -321,7 +376,8 @@ async function pullCloud(force=false){
     setSyncUI("synced","已同步");
   }catch(err){
     console.error("pullCloud",err);
-    setSyncUI(navigator.onLine?"error":"offline",navigator.onLine?"刷新失败":"离线");
+    const detail=err?.message||String(err);
+    setSyncUI(navigator.onLine?"error":"offline",navigator.onLine?"刷新失败":"离线",detail);
   }
 }
 function subscribeCloud(){

@@ -142,3 +142,17 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 @media(max-width:760px){
   .phone-sync-intro{display:block}
 }
+
+
+/* V4.4 sync diagnostics */
+.sync-dashboard{grid-template-columns:repeat(4,1fr)}
+.sync-error-box{
+  margin-top:12px;padding:10px 11px;border:1px solid #663743;
+  background:rgba(255,122,141,.08);border-radius:10px
+}
+.sync-error-box.hidden{display:none}
+.sync-error-box strong{display:block;color:#ffabb7;font-size:11px}
+.sync-error-box span{display:block;margin-top:5px;color:#d7a3aa;font-size:10px;line-height:1.55;word-break:break-word}
+@media(max-width:760px){
+  .sync-dashboard{grid-template-columns:1fr 1fr}
+}
