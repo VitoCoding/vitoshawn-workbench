@@ -1,14 +1,13 @@
 {
   "id": "./",
-  "name": "天蓬 VitoShawn · 喜剧创作工作台 V4",
+  "name": "天蓬 VitoShawn · 喜剧创作工作台",
   "short_name": "天蓬 VitoShawn",
-  "description": "天蓬 VitoShawn 的跨设备同步喜剧创作工作台",
+  "description": "天蓬 VitoShawn 的脱口秀、自媒体、影视训练与跨设备同步工作台",
   "lang": "zh-CN",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#101218",
+  "background_color": "#0f1117",
   "theme_color": "#8268ff",
   "icons": [
     {
@@ -22,23 +21,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "快速记录",
-      "short_name": "记录",
-      "url": "./?action=capture"
-    },
-    {
-      "name": "今日",
-      "short_name": "今日",
-      "url": "./?view=today"
-    },
-    {
-      "name": "脱口秀",
-      "short_name": "脱口秀",
-      "url": "./?view=standup"
     }
   ]
 }
