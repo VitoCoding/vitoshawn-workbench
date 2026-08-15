@@ -134,6 +134,44 @@ function modal(mode,p={}){
  if(mode==="topic"){modalTitle.textContent="新增选题";modalBody.innerHTML=`<div class="modal-form"><textarea id="tText" rows="5" placeholder="我真正想说什么？"></textarea><input id="tLine" placeholder="最想让观众记住的一句"><select id="tFormat"><option>口播</option><option>段子</option><option>短剧情</option><option>其他</option></select><div class="modal-actions"><button class="primary-btn" id="tSave">保存</button></div></div>`;tSave.onclick=()=>{S.media.topics.unshift({id:crypto.randomUUID(),text:tText.value,line:tLine.value,format:tFormat.value,createdAt:new Date().toISOString()});save(true);renderMedia();close()}}
  if(mode==="exposure"){modalTitle.textContent="记录一次公开表达";modalBody.innerHTML=`<div class="modal-form"><input id="eWhat" placeholder="讲了什么"><select id="eLevel"><option value="1">等级 1 · 只录 30 秒</option><option value="2">等级 2 · 录完整版本</option><option value="3">等级 3 · 发给一个人</option><option value="4">等级 4 · 公开发布</option><option value="5">等级 5 · 稳定栏目</option></select><input id="eFeel" placeholder="之后最真实的感受"><div class="modal-actions"><button class="primary-btn" id="eSave">保存</button></div></div>`;eSave.onclick=()=>{S.media.exposures.unshift({id:crypto.randomUUID(),what:eWhat.value,level:Number(eLevel.value),feeling:eFeel.value,createdAt:new Date().toISOString()});save(true);renderMedia();close()}}
 }
+
+function openMoreMenu(){
+  modalWrap.classList.remove("hidden");
+  modalTitle.textContent="更多";
+  modalBody.innerHTML=`
+    <div class="mobile-more-grid">
+      <button data-more-view="media">
+        <strong>自媒体</strong>
+        <span>公开表达与选题</span>
+      </button>
+      <button data-more-view="film">
+        <strong>影视训练</strong>
+        <span>拉片与编剧练习</span>
+      </button>
+      <button data-more-view="review">
+        <strong>周复盘</strong>
+        <span>看本周推进</span>
+      </button>
+      <button data-more-view="install" class="cloud-entry">
+        <strong>安装与数据</strong>
+        <span>云同步、登录、备份</span>
+      </button>
+    </div>`;
+  modalBody.querySelectorAll("[data-more-view]").forEach(btn=>{
+    btn.onclick=()=>{
+      close();
+      showView(btn.dataset.moreView);
+    };
+  });
+}
+
+function renderMobileCloudBanner(){
+  if(typeof mobileCloudBanner==="undefined"||!mobileCloudBanner)return;
+  const cfg=getCloudConfig();
+  const needsConfig=!(cfg.url&&cfg.key&&cloudSession?.user);
+  mobileCloudBanner.classList.toggle("show",needsConfig);
+}
+
 function close(){modalWrap.classList.add("hidden")}
 
 
@@ -170,6 +208,7 @@ function renderCloudUI(){
   }
   if(typeof lastSyncText!=="undefined"&&lastSyncText) lastSyncText.textContent=formatSyncTime(S.meta.cloudUpdatedAt);
   if(typeof localStateText!=="undefined"&&localStateText) localStateText.textContent=cloudDirty?"等待上传":"已保存";
+  renderMobileCloudBanner();
 }
 async function initCloud(){
   renderCloudUI();
@@ -401,6 +440,7 @@ function init(){
  const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;appMode.textContent=standalone?"App 模式":"浏览器模式";
  document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>showView(b.dataset.view));
  document.querySelectorAll("[data-action=capture]").forEach(b=>b.onclick=()=>modal("capture"));
+ document.querySelectorAll("[data-action=more]").forEach(b=>b.onclick=openMoreMenu);
  document.querySelectorAll("[data-energy]").forEach(b=>b.onclick=()=>{S.today.energy=b.dataset.energy;renderEnergy();save(true)});
  document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{S.meta.inboxFilter=b.dataset.filter;save();renderInbox()});
  document.querySelectorAll("#standupTabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
@@ -413,6 +453,11 @@ function init(){
  closeModal.onclick=close;modalWrap.onclick=e=>{if(e.target===modalWrap)close()};
  document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();modal("capture")}if(e.key==="Escape")close()});
 
+
+ if(typeof mobileCloudSetupBtn!=="undefined"&&mobileCloudSetupBtn){
+   mobileCloudSetupBtn.onclick=()=>showView("install");
+ }
+
  if(typeof saveCloudConfig!=="undefined") saveCloudConfig.onclick=saveCloudConfiguration;
  if(typeof signupBtn!=="undefined") signupBtn.onclick=cloudSignup;
  if(typeof loginBtn!=="undefined") loginBtn.onclick=cloudLogin;
@@ -424,7 +469,7 @@ function init(){
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&cloudSession?.user&&!cloudDirty)pullCloud(false)});
  window.addEventListener("focus",()=>{if(cloudSession?.user&&!cloudDirty)pullCloud(false)});
 
- hydrate();showTab(S.meta.standupTab||"bits");
+ hydrate();renderMobileCloudBanner();showTab(S.meta.standupTab||"bits");
  const q=new URLSearchParams(location.search);if(q.get("view")&&meta[q.get("view")])showView(q.get("view"));else showView(S.meta.view||"today");if(q.get("action")==="capture")setTimeout(()=>modal("capture"),150);
  if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("./sw.js").catch(console.warn);
  renderCloudUI();
