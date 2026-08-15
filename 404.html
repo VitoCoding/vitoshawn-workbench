@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#8268ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="天蓬 VitoShawn">
+  <meta name="format-detection" content="telephone=no">
+  <title>天蓬 VitoShawn · 喜剧创作工作台</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="home" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></symbol>
+    <symbol id="bolt" viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 9-13h-6z"/></symbol>
+    <symbol id="mic" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="12" rx="4"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></symbol>
+    <symbol id="video" viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></symbol>
+    <symbol id="film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M17 9h4M3 15h4M17 15h4"/></symbol>
+    <symbol id="chart" viewBox="0 0 24 24"><path d="M4 20V11M10 20V5M16 20v-7M22 20H2"/></symbol>
+    <symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></symbol>
+    <symbol id="upload" viewBox="0 0 24 24"><path d="M12 21V9m0 0 4 4m-4-4-4 4M5 4h14"/></symbol>
+    <symbol id="settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/></symbol>
+    <symbol id="calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></symbol>
+  </svg>
+
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <img src="icons/icon-192.png" alt="" class="brand-icon">
+        <div>
+          <strong>天蓬 VitoShawn</strong>
+          <span>喜剧创作工作台 · V4</span>
+        </div>
+      </div>
+
+      <button class="capture-btn" data-action="capture"><svg><use href="#plus"/></svg>快速记录 <kbd>⌘K</kbd></button>
+
+      <nav class="desktop-nav">
+        <button data-view="today" class="active"><svg><use href="#home"/></svg>今日</button>
+        <button data-view="inbox"><svg><use href="#bolt"/></svg>Inbox <em id="navInboxCount">0</em></button>
+        <div class="nav-section">创作主线</div>
+        <button data-view="standup"><svg><use href="#mic"/></svg>脱口秀</button>
+        <button data-view="media"><svg><use href="#video"/></svg>自媒体</button>
+        <button data-view="film"><svg><use href="#film"/></svg>影视训练</button>
+        <div class="nav-section">系统</div>
+        <button data-view="review"><svg><use href="#chart"/></svg>周复盘</button>
+        <button data-view="install"><svg><use href="#grid"/></svg>安装与数据</button>
+      </nav>
+
+      <div class="side-foot">
+        <small>当前职业主线</small>
+        <strong>重新回到开放麦</strong>
+        <span>写 → 练 → 投稿 → 上台 → 复盘</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top">
+        <div>
+          <div class="eyebrow" id="pageEyebrow">职业主线</div>
+          <h1 id="pageTitle">今日</h1>
+          <p id="pageDesc">今天只决定下一步。</p>
+        </div>
+        <div class="top-right">
+          <span class="sync-pill offline" id="syncPill">云同步未配置</span>
+          <span class="app-mode" id="appMode">浏览器模式</span>
+          <span class="date-pill" id="datePill"></span>
+        </div>
+      </header>
+
+      <section id="view-today" class="view active">
+        <div class="welcome-card">
+          <div>
+            <div class="eyebrow">天蓬 VitoShawn</div>
+            <h2 id="greeting">今天继续往舞台靠近一点。</h2>
+            <p>不用把一天安排满。先选精力，再把第一步写清楚。</p>
+          </div>
+          <div class="energy" id="energy">
+            <button data-energy="高">高</button>
+            <button data-energy="中">中</button>
+            <button data-energy="低">低</button>
+          </div>
+        </div>
+
+        <div class="week-strip" id="weekStrip"></div>
+
+        <div class="today-grid">
+          <article class="task primary">
+            <span class="task-label">主任务</span>
+            <input id="mainTask" class="task-name" placeholder="今天最值得推进的一件事">
+            <textarea id="mainMin" rows="3" placeholder="10 分钟最小版本"></textarea>
+            <label><input type="checkbox" id="mainDone">完成</label>
+          </article>
+          <article class="task">
+            <span class="task-label">辅助任务</span>
+            <input id="assistTask" class="task-name" placeholder="例如：对镜头表达一次">
+            <textarea id="assistMin" rows="3" placeholder="最小版本"></textarea>
+            <label><input type="checkbox" id="assistDone">完成</label>
+          </article>
+          <article class="task low">
+            <span class="task-label">低精力也能做</span>
+            <input id="lowTask" class="task-name" placeholder="状态差时仍能做什么">
+            <textarea id="lowMin" rows="3" placeholder="例如：听一遍录音，记一个问题"></textarea>
+            <label><input type="checkbox" id="lowDone">完成</label>
+          </article>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div><span class="eyebrow">最低标准</span><h3>今天做到这里也算推进</h3></div>
+            </div>
+            <textarea id="minimum" rows="4" placeholder="只留一个足以让今天没有停滞的动作"></textarea>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div><span class="eyebrow">现金流 / 截止时间</span><h3>现实约束</h3></div>
+            </div>
+            <textarea id="deadline" rows="4" placeholder="客服旺季、AI 视频项目、明确 deadline，没有就留空"></textarea>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><div><span class="eyebrow">随手记</span><h3>不分类</h3></div></div>
+            <textarea id="todayNotes" rows="6" placeholder="临时想法直接写"></textarea>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><span class="eyebrow">收工</span><h3>给明天留入口</h3></div></div>
+            <div class="stack">
+              <input id="dayPush" placeholder="今天实际推进了">
+              <input id="dayBlock" placeholder="我卡在">
+              <input id="dayNext" placeholder="明天最自然的下一步">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-inbox" class="view">
+        <div class="toolbar">
+          <div class="chips" id="inboxFilters">
+            <button data-filter="all" class="active">全部</button>
+            <button data-filter="idea">想法</button>
+            <button data-filter="bit">段子</button>
+            <button data-filter="video">视频</button>
+            <button data-filter="film">影视</button>
+          </div>
+          <button class="primary-btn" data-action="capture"><svg><use href="#plus"/></svg>记录</button>
+        </div>
+        <div id="inboxList" class="list"></div>
+      </section>
+
+      <section id="view-standup" class="view">
+        <div class="stat-row">
+          <div><span>正在发展</span><strong id="bitsActive">0</strong></div>
+          <div><span>待练</span><strong id="bitsPractice">0</strong></div>
+          <div><span>待测试</span><strong id="bitsTest">0</strong></div>
+          <div><span>开放麦</span><strong id="openmicCount">0</strong></div>
+        </div>
+
+        <div class="toolbar">
+          <div class="tabs" id="standupTabs">
+            <button data-tab="bits" class="active">段子看板</button>
+            <button data-tab="openmics">开放麦</button>
+            <button data-tab="practice">练稿</button>
+          </div>
+          <button class="primary-btn" id="standupAddBtn"><svg><use href="#plus"/></svg>新增段子</button>
+        </div>
+
+        <div id="standup-bits" class="subview active"><div class="kanban" id="kanban"></div></div>
+        <div id="standup-openmics" class="subview">
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <div><span class="eyebrow">投稿 / 登台</span><h3>开放麦</h3></div>
+                <button class="mini-btn" id="addOpenmic">新增</button>
+              </div>
+              <div id="openmicList" class="list compact"></div>
+            </div>
+            <div class="panel">
+              <span class="eyebrow">最新复盘</span><h3>只保留三个结论</h3>
+              <textarea id="openmicReview" rows="12" placeholder="一个写作问题&#10;一个表演问题&#10;下一场只实验一件事"></textarea>
+            </div>
+          </div>
+        </div>
+        <div id="standup-practice" class="subview">
+          <div class="grid-2">
+            <div class="panel">
+              <span class="eyebrow">刚练完</span><h3>快速记录</h3>
+              <div class="stack">
+                <input id="practiceWhat" placeholder="练了什么">
+                <input id="practiceFocus" placeholder="这次只观察什么">
+                <input id="practiceProblem" placeholder="最明显的问题">
+                <input id="practiceNext" placeholder="下一次只实验什么">
+                <button class="primary-btn" id="savePractice">保存练稿</button>
+              </div>
+            </div>
+            <div class="panel">
+              <span class="eyebrow">最近记录</span><h3>练稿历史</h3>
+              <div id="practiceList" class="list compact"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-media" class="view">
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div><span class="eyebrow">公开表达</span><h3>被看见阶梯</h3></div>
+              <button class="mini-btn" id="addExposure">记录一次</button>
+            </div>
+            <div class="ladder">
+              <div><b>1</b><span>对镜头说 30 秒，不发布</span></div>
+              <div><b>2</b><span>录完整版本，保存</span></div>
+              <div><b>3</b><span>发给一个人</span></div>
+              <div><b>4</b><span>公开发布</span></div>
+              <div><b>5</b><span>形成稳定栏目 / 喜剧内容</span></div>
+            </div>
+            <div id="exposureList" class="list compact"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div><span class="eyebrow">选题池</span><h3>真正想说的东西</h3></div>
+              <button class="mini-btn" id="addTopic">新增</button>
+            </div>
+            <div id="topicList" class="list compact"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-film" class="view">
+        <div class="grid-2">
+          <div class="panel">
+            <span class="eyebrow">拉片 / 编剧</span><h3>本次练习</h3>
+            <div class="stack">
+              <input id="filmWork" placeholder="作品 / 场景">
+              <textarea id="filmWhy" rows="3" placeholder="为什么好笑 / 为什么有效"></textarea>
+              <textarea id="filmShots" rows="3" placeholder="镜头、调度、结构上注意到什么"></textarea>
+              <input id="filmOutput" placeholder="10 分钟输出：5 句话 / 6 格 storyboard / 一个模仿镜头">
+              <button class="primary-btn" id="saveFilm">保存训练</button>
+            </div>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">输出历史</span><h3>最近训练</h3>
+            <div id="filmList" class="list compact"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-review" class="view">
+        <div class="stat-row five">
+          <div><span>写 / 改稿</span><strong id="mWrite">0</strong></div>
+          <div><span>练稿</span><strong id="mPractice">0</strong></div>
+          <div><span>投稿 / 登台</span><strong id="mStage">0</strong></div>
+          <div><span>公开表达</span><strong id="mPublic">0</strong></div>
+          <div><span>影视输出</span><strong id="mFilm">0</strong></div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <span class="eyebrow">本周</span><h3>真正发生了什么</h3>
+            <textarea id="reviewCloser" rows="5" placeholder="哪件事最接近职业脱口秀演员？"></textarea>
+            <textarea id="reviewBlock" rows="5" placeholder="我最常卡在哪里？"></textarea>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">下周</span><h3>只留三个重点</h3>
+            <textarea id="reviewPriorities" rows="7" placeholder="1.&#10;2.&#10;3."></textarea>
+            <textarea id="reviewMinimum" rows="4" placeholder="工作突然变忙时，最低保留什么？"></textarea>
+          </div>
+        </div>
+      </section>
+
+      
+<section id="view-install" class="view">
+        <div class="install-hero">
+          <img src="icons/icon-192.png" alt="" class="install-icon">
+          <div>
+            <span class="eyebrow">同一个工作台</span>
+            <h2>天蓬 VitoShawn · 云同步 V4</h2>
+            <p>GitHub Pages 托管 App；Supabase 保存同一份工作台数据。iPhone 和 MacBook 登录同一个账号后自动同步。</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <span class="eyebrow">第 1 步</span>
+            <h3>连接 Supabase</h3>
+            <p class="muted">这里只填 Project URL 和 Publishable key。不要填写 Secret key 或 service_role key。</p>
+            <div class="stack">
+              <input id="supabaseUrl" placeholder="https://xxxx.supabase.co">
+              <input id="supabaseKey" placeholder="sb_publishable_...">
+              <button class="primary-btn" id="saveCloudConfig">保存云同步配置</button>
+            </div>
+            <div class="config-state" id="configState">尚未配置</div>
+          </div>
+
+          <div class="panel">
+            <span class="eyebrow">第 2 步</span>
+            <h3>登录同一个账号</h3>
+            <p class="muted">在 MacBook 和 iPhone 都使用同一个 Supabase Auth 账号。</p>
+            <div class="stack">
+              <input id="authEmail" type="email" autocomplete="email" placeholder="邮箱">
+              <input id="authPassword" type="password" autocomplete="current-password" placeholder="密码（至少 6 位）">
+              <div class="button-row">
+                <button class="primary-btn" id="loginBtn">登录</button>
+                <button class="secondary-btn" id="signupBtn">注册</button>
+                <button class="secondary-btn" id="logoutBtn">退出</button>
+              </div>
+            </div>
+            <div class="account-state" id="accountState">未登录</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <span class="eyebrow">同步状态</span>
+            <h3>设备间同步</h3>
+            <div class="sync-dashboard">
+              <div><span>当前状态</span><strong id="syncStateText">未配置</strong></div>
+              <div><span>最后同步</span><strong id="lastSyncText">—</strong></div>
+              <div><span>本机数据</span><strong id="localStateText">已保存</strong></div>
+            </div>
+            <div class="button-row">
+              <button class="primary-btn" id="syncNowBtn">立即同步</button>
+              <button class="secondary-btn" id="pullCloudBtn">从云端刷新</button>
+            </div>
+            <p class="muted sync-note">正常使用时不需要手动点。App 会在本地修改后自动上传，并在重新打开、回到前台或另一台设备更新时刷新。</p>
+          </div>
+
+          <div class="panel">
+            <span class="eyebrow">首次迁移</span>
+            <h3>先在“有数据”的设备登录</h3>
+            <ol class="setup-steps">
+              <li>V3 有数据时，先在 V3 导出 JSON 备份。</li>
+              <li>MacBook 打开 GitHub Pages 上的 V4，先导入这份 JSON。</li>
+              <li>配置 Supabase，并登录账号。</li>
+              <li>点击一次“立即同步”，把 Mac 数据作为第一份云端数据。</li>
+              <li>再在 iPhone 安装 V4，用同一个账号登录并读取云端数据。</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel install-card">
+            <span class="device">iPhone</span>
+            <h3>安装到主屏幕</h3>
+            <ol>
+              <li>Safari 打开 GitHub Pages 的 HTTPS 地址。</li>
+              <li>分享 → “添加到主屏幕”。</li>
+              <li>从“天蓬 VitoShawn”图标启动。</li>
+              <li>登录与 MacBook 相同账号。</li>
+            </ol>
+          </div>
+          <div class="panel install-card">
+            <span class="device">MacBook</span>
+            <h3>安装到 Dock</h3>
+            <ol>
+              <li>Safari 打开同一个 GitHub Pages 地址。</li>
+              <li>文件 → “添加到 Dock”。</li>
+              <li>从 Dock / Spotlight 启动“天蓬 VitoShawn”。</li>
+              <li>登录与 iPhone 相同账号。</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <span class="eyebrow">本地保险</span>
+            <h3>JSON 备份仍然保留</h3>
+            <p class="muted">云同步之外，仍建议偶尔导出一份 JSON。它不会上传到 GitHub。</p>
+            <div class="button-row">
+              <button class="secondary-btn" id="exportBtn"><svg><use href="#download"/></svg>导出 JSON</button>
+              <label class="secondary-btn file-label"><svg><use href="#upload"/></svg>导入 JSON<input type="file" id="importFile" accept=".json"></label>
+            </div>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">冲突策略</span>
+            <h3>适合你个人顺序使用</h3>
+            <p class="muted">V4 采用“最后一次成功保存为准”。正常在 iPhone 记素材、回 MacBook 写稿没有问题；不建议两台设备同时编辑同一页。</p>
+            <div class="sync-box">离线时先存本地；重新联网后自动尝试上传。</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav">
+    <button data-view="today" class="active"><svg><use href="#home"/></svg><span>今日</span></button>
+    <button data-view="inbox"><svg><use href="#bolt"/></svg><span>Inbox</span></button>
+    <button class="mobile-capture" data-action="capture"><svg><use href="#plus"/></svg></button>
+    <button data-view="standup"><svg><use href="#mic"/></svg><span>脱口秀</span></button>
+    <button data-view="review"><svg><use href="#chart"/></svg><span>复盘</span></button>
+  </nav>
+
+  <div class="modal-wrap hidden" id="modalWrap">
+    <div class="modal">
+      <div class="modal-head">
+        <div><span class="eyebrow">快速操作</span><h3 id="modalTitle">记录</h3></div>
+        <button class="icon-btn" id="closeModal"><svg><use href="#x"/></svg></button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已保存</div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
