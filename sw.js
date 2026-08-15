@@ -1,4 +1,4 @@
-const CACHE = "tianpeng-vitoshawn-v4-2-more-page";
+const CACHE = "tianpeng-vitoshawn-v4-3-direct-sync";
 const CORE = [
   "./","./index.html","./styles.css","./app.js","./manifest.webmanifest",
   "./icons/icon-180.png","./icons/icon-192.png","./icons/icon-512.png"
